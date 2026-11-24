@@ -1,0 +1,87 @@
+CREATE TABLE Manager (
+    manager_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    hire_date DATE NOT NULL,
+    department VARCHAR(100)
+);
+
+CREATE TABLE Astronaut (
+    astronaut_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    rank VARCHAR(100),
+    paygrade INT,
+    hours_space INT,
+    hours_simulation INT
+);
+
+CREATE TABLE Scientist (
+    scientist_id INT PRIMARY KEY,
+    name VARCHAR (100) NOT NULL,
+    title VARCHAR (100),
+    specialty VARCHAR(100),
+    hire_date DATE NOT NULL
+);
+
+CREATE TABLE Rocket (
+    rocket_id INT PRIMARY KEY,
+    model VARCHAR (100) NOT NULL,
+    payload_capacity INT,
+    crew_capacity INT,
+    stages INT,
+    fuel_capacity INT,
+    weight INT
+);
+
+CREATE TABLE Launchpad (
+    launchpad_id INT PRIMARY KEY,
+    location VARCHAR(100) NOT NULL,
+    status VARCHAR(100) NOT NULL,
+    max_supported_weight INT
+);
+
+CREATE TABLE CelestialBody (
+    body_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    distance INT,
+    body_type VARCHAR(100),
+    parent_body_id INT,
+    FOREIGN KEY (parent_body_id) REFERENCES CelestialBody(body_id)
+);
+
+CREATE TABLE Mission (
+    mission_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    launch_date DATE NOT NULL,
+    planned_duration INT,
+    status VARCHAR(100) NOT NULL,
+    mission_type VARCHAR(100) NOT NULL,
+
+    manager_id INT NOT NULL,
+    rocket_id INT NOT NULL UNIQUE,
+    launchpad_id INT NOT NULL,
+    target_body_id INT NOT NULL,
+    FOREIGN KEY (manager_id) REFERENCES Manager(manager_id),
+    FOREIGN KEY (rocket_id) REFERENCES Rocket(rocket_id),
+    FOREIGN KEY (launchpad_id) REFERENCES Launchpad(launchpad_id),
+    FOREIGN KEY (target_body_id) REFERENCES CelestialBody(body_id)
+);
+
+CREATE TABLE Mission_Astronauts (
+    mission_id INT NOT NULL,
+    astronaut_id INT NOT NULL,
+
+    PRIMARY KEY (mission_id, astronaut_id),
+
+    FOREIGN KEY (mission_id) REFERENCES Mission(mission_id),
+    FOREIGN KEY (astronaut_id) REFERENCES Astronaut(astronaut_id)
+);
+
+CREATE TABLE Mission_Scientists (
+    mission_id INT NOT NULL,
+    scientist_id INT NOT NULL,
+
+    PRIMARY KEY (mission_id, scientist_id),
+
+    FOREIGN KEY (mission_id) REFERENCES Mission(mission_id),
+    FOREIGN KEY (scientist_id) REFERENCES Scientist(scientist_id)
+);

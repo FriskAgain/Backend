@@ -1,0 +1,39 @@
+services:
+
+  api:
+    build: .
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sqlserver
+      - mongodb
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=AarhusSpaceProgramDb;User Id=sa;Password=Password123!;TrustServerCertificate=True
+      - Serilog__WriteTo__0__Args__databaseUrl=mongodb://mongodb:27017/AarhusSpaceProgramLogs
+      - MongoDb__ConnectionString=mongodb://mongodb:27017
+      - MongoDb__DatabaseName=MissionLogsDb
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Password123!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+
+  worker:
+    build: ../AarhusSpaceProgram.MissionLogGenerator
+    depends_on:
+      - api
+      - mongodb
+      - sqlserver
+    environment:
+    - Api__BaseUrl=http://api:8080
+    - MongoDb__ConnectionString=mongodb://mongodb:27017
+    - MongoDb__DatabaseName=AarhusSpaceProgramLogs
